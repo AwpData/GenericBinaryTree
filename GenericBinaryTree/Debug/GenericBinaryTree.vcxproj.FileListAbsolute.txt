@@ -1,0 +1,2 @@
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\Debug\GenericBinaryTree.exe
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\Debug\GenericBinaryTree.pdb
