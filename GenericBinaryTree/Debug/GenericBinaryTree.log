@@ -1,2 +1,3 @@
 ﻿  GenericBinaryTree.cpp
-  GenericBinaryTree.vcxproj -> C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\Debug\GenericBinaryTree.exe
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(147,12): error C3329: syntax error: expected 'identifier' not ';'
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(165): message : see reference to class template instantiation 'Tree<T>' being compiled

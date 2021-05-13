@@ -1,6 +1,11 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <stack> // STL
+#include <vector> // STL 
+#include <fstream>
+#include <string>
+
+#pragma warning(disable : 4996) 
+
 using namespace std;
 
 template <class T>
@@ -32,24 +37,16 @@ public:
 	}
 
 	void displayInorder() {
+		if (root == nullptr) {
+			cout << "Tree is empty!" << endl;
+			return;
+		}
 		displayInorder(root);
 	}
 
-	void displayPreorder() {
-		displayPreorder(root);
-	}
-
-	void displayPostorder() {
-		displayPostorder(root);
-	}
-
-	bool search(T value, bool printAddress = true) {
-		if (search(root, value, printAddress)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	void removeAllPostorder() {
+		removeAllPostorder(root);
+		this->root = nullptr;
 	}
 
 	void remove(T value) {
@@ -78,101 +75,130 @@ private: // All private methods for encapsulation and so the user does not have 
 		}
 	}
 
-	// Preorder consistently prints the leftmost values first 
-	void displayPreorder(TreeNode<T>* leaf) { // Displays preorder (left, bottom, right) printing
+
+	void displayInorder(TreeNode<T>* leaf) {
+		stack<TreeNode<T>*> treeNodes; // Create a stack of generic TreeNodes
+		while (leaf != nullptr || !treeNodes.empty()) { // While our tree exists or the stack isn't empty
+			while (leaf != nullptr) { // This will traverse to the left-most treenode 
+				treeNodes.push(leaf); // First we must push the parent node to remember to go back to it 
+				leaf = leaf->left; // Then we keep going left 
+			}
+			leaf = treeNodes.top(); // We hit the left-most pointer, so now I must get it by getting the top 
+			cout << leaf->value << " "; // Print out that value 
+			treeNodes.pop(); // Then remove it 
+			leaf = leaf->right; // Finally, we rinse and repeat with right
+			// If there are no more left nodes, then the stack will keep popping until we get to another right node that exists (and then we check for left nodes and so on)
+		}
+	}
+
+	void removeAllPostorder(TreeNode<T>* leaf) { // Displays preorder (right, left, bottom) printing 
 		if (leaf != nullptr) {
-			cout << leaf->value << " ";
-			displayPreorder(leaf->left);
-			displayPreorder(leaf->right);
+			removeAllPostorder(leaf->left);
+			removeAllPostorder(leaf->right);
+			cout << "Removing: " << leaf->value << endl;
+			delete leaf;
 		}
-	}
-
-	// Inorder consistently prints the bottom-most values first before moving to the right values
-	void displayInorder(TreeNode<T>* leaf) { // Displays inorder (bottom, left, right) printing
-		if (leaf != nullptr) {
-			displayInorder(leaf->left);
-			cout << leaf->value << " ";
-			displayInorder(leaf->right);
-		}
-	}
-
-	// Postorder consistently prints the right-most values (children) first before printing the actual parent node 
-	void displayPostorder(TreeNode<T>* leaf) { // Displays preorder (right, left, bottom) printing 
-		if (leaf != nullptr) {
-			displayPostorder(leaf->left);
-			displayPostorder(leaf->right);
-			cout << leaf->value << " ";
-		}
-	}
-
-	// Searches for a node by "binary searching" through the tree 
-	bool search(TreeNode<T>* leaf, T value, bool printAddress) {
-		if (leaf != nullptr) { // As long as our treenode is not null
-			if (leaf->value == value) { // First we check if the desired value is the same as the treenode value 
-				if (printAddress) { // I just have this here because I don't want to print the address when filling the tree! (only searching it) 
-					cout << "Value: " << leaf->value << " found at address " << *(&leaf) << endl; // If it is, print out the address of this treenode
-				}
-				return true; // Stop doing recursion now, we found it. 
-			}
-			else if (value < leaf->value) { // Else, we go to the left if less than since that is how binary trees are built 
-				search(leaf->left, value, printAddress);
-			}
-			else if (value > leaf->value) { // Vice versa of less than 
-				search(leaf->right, value, printAddress);
-			}
-		}
-		else { // Else statement needed for false because although recursion returns, it would have returned false instead (since I have no return statement after recursive function) 
-			return false;
-		}
-	}
-
-	void remove(TreeNode<T>*& tree, T value) { // To remove a value, we must pass in the indirection operator since we will be modifying addresses of our treenodes
-		if (tree != nullptr) {
-			if (tree->value == value) { // IF we find the value, then call the makeDeletion function with that treenode as a parameter 
-				makeDeletion(tree);
-			}
-			else if (value < tree->value) { // Below two if-statements work similar to the search() function's traversal method 
-				remove(tree->left, value);
-			}
-			else if (value > tree->value) {
-				remove(tree->right, value);
-			}
-		}
-	}
-
-	void makeDeletion(TreeNode<T>*& tree) { // Deletes the desired node and moves our treeNode's around (if needed) to maintain binary tree standards 
-		TreeNode* garbage = tree; // Set a deletion pointer to our desired deleted treenode 
-		TreeNode* newAttachPoint; // This pointer will be used for moving treenodes around if we need it (the 2 children case) 
-		if (tree->right == nullptr) { // First, if our right tree is nullptr, then we simply replace this tree node with the left tree (pass over it) 
-			tree = tree->left;
-		}
-		else if (tree->left == nullptr) { // If our left tree is nullptr, then we simply replace this tree node with the right tree (pass over it) 
-			tree = tree->right;
-		}
-		else { // We have 2 children 
-			newAttachPoint = tree->right; // Set our 'moving' pointer to the right tree (because it is greater it will be easier to move to the left child) 
-			while (newAttachPoint->left != nullptr) { // Finds the smallest value from the right tree's children
-				newAttachPoint = newAttachPoint->left;
-			}
-			newAttachPoint->left = tree->left; // Once we find it, we will point that last node to the first tree->left node 
-												// Every right treenode's value is greater than every left treenode's value!
-			tree = tree->right; // Finally, assign our old tree to the right tree because now the right tree's left child's last value is attached to tree->left 
-		}
-		delete garbage; // Now we can delete the desired node because we reassigned tree to be tree->right 
 	}
 };
 
+vector<string> split(string s, char delimiter) {
+	vector<string> returned;
+	int pos = 0;
+	while (true) { // While the delimieter can still find a comma (it will stop after it can't go any more) 
+		string substring = s.substr(pos, s.find(delimiter, pos) - pos); // Starts at pos 0 and then gets the substring of pos to the next comma minus pos (because it is the length, not the index) 
+		returned.push_back(substring); // Pushes the substring into our vector 
+		if (s.find(delimiter, pos) == -1) { // Once the finder cannot find any more commas it is time to break out of it 
+			break;
+		}
+		pos = s.find(delimiter, pos) + 1; // else it will set position to that position of the comma + 1 for the next element 
+	}
+	for (int i = 0; i < returned.size(); i++) {
+		cout << returned[i] << " ";
+	}
+	cout << endl;
+	return returned;
+
+}
+
 int main()
 {
-	Tree<string> t;
-	t.insert("String");
-	t.displayInorder();
+	Tree<string> stringTree;
+	Tree<double> doubleTree;
+	Tree<int> intTree;
 
-	Tree<int> i;
-	i.insert(3);
-	i.displayInorder();
+	bool fileFound = false;
+	string fileName;
+	ifstream file;
+	while (!fileFound) {
+		cout << "Please enter the name of your file " << endl;
+		cin >> fileName;
+		try {
+			file.open(fileName);
+			if (file.fail()) {
+				throw string("Cannot find file, try again");
+			}
+			cout << "Success! File found" << endl;
+			fileFound = true;
+		}
+		catch (string s) {
+			cout << s << endl;
+		}
+	}
+	// WORK ON ERROR PARSING FOR STOD AND STOI 
+	string parser = "";
+	vector<string> substrings;
+	while (getline(file, parser)) {
+		try {
+			substrings = split(parser, ',');
+			if (substrings.size() == 0) {
+				throw;
+			}
+			for (int i = 0; i < substrings.size(); i++) {
+				if ((substrings[i][0] >= 'A' && substrings[i][0] <= 'Z') || (substrings[i][0] >= 'a' && substrings[i][0] <= 'z')) { // First it gets the string at vector element i, then it checks the first char to test for letter
+					stringTree.insert(substrings[i]);
+				}
+				else if (substrings[i].find('.') != string::npos) {
+					try {
+						double d = stod(substrings[i]);
+						doubleTree.insert(d);
+					}
+					catch (exception e) {
+						cout << "Could not convert " << substrings[i] << " due to formatting issues, skipping..." << endl;
+					}
+				}
+				else {
+					try {
+						int num = stod(substrings[i]);
+						intTree.insert(i);
+					}
+					catch (exception e) {
+						cout << "Could not convert " << substrings[i] << " due to formatting issues, skipping..." << endl;
+					}
+				}
+			}
+		}
+		catch (exception e) {
+			cout << "Vector was empty, moving on to next line" << endl;
+		}
+	}
+	stringTree.displayInorder();
+	cout << endl;
+	doubleTree.displayInorder();
+	cout << endl;
+	intTree.displayInorder();
+	cout << endl;
 
-	Tree<double> d;
-	d.insert(2.5);
-	d.displayInorder();
+	cout << "\nDeleting all trees: " << endl;
+	stringTree.removeAllPostorder();
+	cout << endl;
+	doubleTree.removeAllPostorder();
+	cout << endl;
+	intTree.removeAllPostorder();
+
+	cout << endl;
+	stringTree.displayInorder();
+	cout << endl;
+	doubleTree.displayInorder();
+	cout << endl;
+	intTree.displayInorder();
 }
