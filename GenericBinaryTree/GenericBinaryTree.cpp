@@ -23,11 +23,11 @@ struct TreeNode { // TreeNode Struct that is templated for all data types
 };
 
 template <class T>
-class Tree {
+class Tree { // Templated tree class 
 private:
 	TreeNode<T>* root;
 
-public:
+public: // These public methods don't contain the treenode because the user shouldn't have to put in the root node to start (its inefficient and redundant) 
 	Tree() {
 		root = nullptr;
 	}
@@ -42,16 +42,12 @@ public:
 		if (root == nullptr) { // After deletion, this should be called to say that the tree is empty (it is) 
 			cout << "Tree is empty!";
 			return;
-		}	
+		}
 	}
 
 	void removeAllPostorder() {
 		removeAllPostorder(root);
 		this->root = nullptr; // After we delete every node, we set the root to nullptr since nothing exists anymore 
-	}
-
-	void remove(T value) {
-		remove(root, value);
 	}
 
 private: // All private methods for encapsulation and so the user does not have to pass in the first TreeNode 
@@ -108,8 +104,7 @@ vector<string> split(string s, char delimiter) {
 	vector<string> returned;
 	int pos = 0;
 
-	HANDLE  hConsole; // handler for console so I can change the text color for readability 
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // handler for console so I can change the text color for readability 
 
 	while (true) { // While the delimiter can still find a comma (it will stop after it can't go any more) 
 		string substring = s.substr(pos, s.find(delimiter, pos) - pos); // Starts at pos 0 and then gets the substring of pos to the next comma minus pos (because it is the length, not the index) 
@@ -132,7 +127,6 @@ vector<string> split(string s, char delimiter) {
 
 int main()
 {
-
 	Tree<string> stringTree; // String tree
 	Tree<double> doubleTree; // Double tree
 	Tree<int> intTree; // Int tree 
@@ -140,13 +134,15 @@ int main()
 	bool fileFound = false;
 	string fileName;
 	ifstream file;
+
+	// File parsing (with invalid file exception handling!) 
 	while (!fileFound) {
 		cout << "Please enter the name of your file " << endl;
 		cin >> fileName;
 		try {
 			file.open(fileName);
 			if (file.fail()) {
-				throw string("Cannot find file, try again");
+				throw string("Cannot find file, try again"); // Throw point for an unknown file 
 			}
 			cout << "Success! File found" << endl;
 			fileFound = true;
@@ -158,49 +154,49 @@ int main()
 	cout << "\n";
 	string parser = "";
 	vector<string> substrings;
-	while (getline(file, parser)) {
+	while (getline(file, parser)) { // While there is a line available to assign to our parser variable 
 		try {
-			substrings = split(parser, ',');
-			if (substrings.size() == 0) {
+			substrings = split(parser, ','); // First, I use the split() method to split the line into substrings in order to make up the vector's elements 
+			if (substrings.size() == 0) { // However, if the line is blank, then it will show an error message and move on to the next line 
 				throw;
 			}
 			for (int i = 0; i < substrings.size(); i++) {
 				if ((substrings[0][0] >= 'A' && substrings[0][0] <= 'Z') || (substrings[0][0] >= 'a' && substrings[0][0] <= 'z')) { // First it gets the string at vector element i, then it checks the first char to test for letter
 					try {
-						if (substrings[i][0] >= '0' && substrings[i][0] <= '9') {
+						if (substrings[i][0] >= '0' && substrings[i][0] <= '9') { // If we have a character that is a number, throw an exception!
 							throw string("Error, the string '" + substrings[i] + "' is an integer/double, but the line should be made of letters, skipping...");
 						}
-						stringTree.insert(substrings[i], "string");
+						stringTree.insert(substrings[i], "string"); // Else, add the string to the string tree 
 					}
 					catch (string s) {
 						cout << s << endl;
 					}
 				}
-				else if (substrings[0].find('.') != string::npos) { // This is if the first character was a double value, thus we compare others for 
+				else if (substrings[0].find('.') != string::npos) { // This is if the first character was a double value
 					try {
-						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') {
+						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') { // If there is a letter, then we skip since we only can have doubles 
 							throw string("Error, the string '" + substrings[i] + "' has letters in it, but the line should be made of doubles, skipping...");
 						}
-						if (substrings[i].find('.') == string::npos) {
+						if (substrings[i].find('.') == string::npos) { // If there is no decimal point (.), then we skip since we only can have doubles 
 							throw string("Error, the string '" + substrings[i] + "' is an integer, but the line should be made of doubles, skipping...");
 						}
-						double d = stod(substrings[i]);
-						doubleTree.insert(d, "double");
+						double d = stod(substrings[i]); // conversion of string to double 
+						doubleTree.insert(d, "double"); // inserting value into double tree 
 					}
 					catch (string s) {
 						cout << s << endl;
 					}
 				}
-				else {
+				else { // The value is an integer value (because first character is a number and there is no decimal point) 
 					try {
-						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') {
+						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') { // If the first character of any subsequent tree is a letter, then we skip
 							throw string("Error, the string '" + substrings[i] + "' has letters in it, but the line should be made of integers, skipping...");
 						}
-						if (substrings[i].find('.') == true) {
+						if (substrings[i].find('.') == true) { // Or if we find a decimal point, then skip it because we can only have integers
 							throw string("Error, the string '" + substrings[i] + "' is a double, but the line should be made of integers, skipping...");
 						}
-						int num = stoi(substrings[i]);
-						intTree.insert(num, "integer");
+						int num = stoi(substrings[i]); // Converts string to integer 
+						intTree.insert(num, "integer"); // Adds value to integer tree 
 					}
 					catch (string s) {
 						cout << s << endl;
@@ -208,7 +204,7 @@ int main()
 				}
 			}
 		}
-		catch (exception e) {
+		catch (exception e) { // This catch is the blank line exception handler 
 			cout << "Line is empty, moving on to next line" << endl;
 		}
 		cout << "\n";
