@@ -1,4 +1,4 @@
 ﻿  GenericBinaryTree.cpp
-C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(115,35): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(196,38): warning C4805: '==': unsafe mix of type 'unsigned __int64' and type 'bool' in operation
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(118,35): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(198,38): warning C4805: '==': unsafe mix of type 'unsigned __int64' and type 'bool' in operation
   GenericBinaryTree.vcxproj -> C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\x64\Debug\GenericBinaryTree.exe

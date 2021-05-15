@@ -1,3 +1,4 @@
+// Trevor Tang 5/14/21
 #include <iostream>
 #include <stack> // STL
 #include <vector> // STL 
@@ -34,18 +35,18 @@ public: // These public methods don't contain the treenode because the user shou
 
 	// These are all public methods that will use the first TreeNode "Root" (for encapsulation and efficiency) so the user can't enter it in 
 	void insert(T value, string datatype = "") {
-		insert(value, root, datatype); // ** Datatype parameter is just for output so the user can see which tree I exactly inserted it in. 
+		insert(value, root, datatype); // ** 'datatype' parameter is just for output so the user can see which tree I exactly inserted it in. 
 	}
 
-	void displayInorder() {
+	void displayInorder() { // Displays the tree in ascended order 
 		displayInorder(root); // I display the tree first (if there is nothing, nothing will print)
-		if (root == nullptr) { // After deletion, this should be called to say that the tree is empty (it is) 
+		if (root == nullptr) { // After deletion methods are called, this should be true as the tree is empty (it is) 
 			cout << "Tree is empty!";
 			return;
 		}
 	}
 
-	void removeAllPostorder() {
+	void removeAllPostorder() { // Removes all nodes with postorder traversal 
 		removeAllPostorder(root);
 		this->root = nullptr; // After we delete every node, we set the root to nullptr since nothing exists anymore 
 	}
@@ -73,7 +74,6 @@ private: // All private methods for encapsulation and so the user does not have 
 		}
 	}
 
-
 	void displayInorder(TreeNode<T>* leaf) {
 		stack<TreeNode<T>*> treeNodes; // Create a stack of generic TreeNodes
 		while (leaf != nullptr || !treeNodes.empty()) { // While our tree exists or the stack isn't empty
@@ -91,8 +91,8 @@ private: // All private methods for encapsulation and so the user does not have 
 
 	void removeAllPostorder(TreeNode<T>* leaf) { // Removes all nodes through postorder traversal (left, right, then value) 
 		if (leaf != nullptr) {
-			removeAllPostorder(leaf->left);
-			removeAllPostorder(leaf->right);
+			removeAllPostorder(leaf->left); // Will keep recursively go left until leaf is not nullptr 
+			removeAllPostorder(leaf->right); // Then it will see if there is any right value at that left node (and again, see if that right node has a left node and so on) 
 			cout << "Removing: " << leaf->value << endl;
 			delete leaf; // Because this is the right-most node of the left-most node, it should have no children and we are safe to delete it 
 			leaf = nullptr; // Set to nullptr to avoid dangling pointers 
@@ -100,7 +100,7 @@ private: // All private methods for encapsulation and so the user does not have 
 	}
 };
 
-vector<string> split(string s, char delimiter) {
+vector<string> split(string s, char delimiter) { // Splits the string into substrings with delimiter being ','
 	vector<string> returned;
 	int pos = 0;
 
@@ -108,11 +108,14 @@ vector<string> split(string s, char delimiter) {
 
 	while (true) { // While the delimiter can still find a comma (it will stop after it can't go any more) 
 		string substring = s.substr(pos, s.find(delimiter, pos) - pos); // Starts at pos 0 and then gets the substring of pos to the next comma minus pos (because it is the length, not the index) 
+		if (substring[0] == ' ') { // This checks if the first index of substring as a space (because comma separated lists can have spaces between each value) 
+			substring = substring.substr(1); // Therefore, I get rid of it by substringing the substring to the next character
+		}
 		returned.push_back(substring); // Pushes the substring into our vector 
 		if (s.find(delimiter, pos) == -1) { // Once the finder cannot find any more commas it is time to break out of it 
 			break;
 		}
-		pos = s.find(delimiter, pos) + 1; // else it will set position to that position of the comma + 1 for the next element 
+		pos = s.find(delimiter, pos) + 1; // else it will set position to that position of the comma + 1 to make the next substring
 	}
 	SetConsoleTextAttribute(hConsole, 11); // Sets console text color to LIGHT BLUE 
 	cout << "Line: ";
@@ -122,7 +125,6 @@ vector<string> split(string s, char delimiter) {
 	cout << endl;
 	SetConsoleTextAttribute(hConsole, 15); // Sets console text color to WHITE 
 	return returned;
-
 }
 
 int main()
@@ -133,26 +135,27 @@ int main()
 
 	bool fileFound = false;
 	string fileName;
+	string parser = "";
 	ifstream file;
 
-	// File parsing (with invalid file exception handling!) 
 	while (!fileFound) {
 		cout << "Please enter the name of your file " << endl;
 		cin >> fileName;
 		try {
-			file.open(fileName);
-			if (file.fail()) {
+			file.open(fileName); // Attempts to open the file 
+			if (file.fail()) { // If file doesn't exist 
 				throw string("Cannot find file, try again"); // Throw point for an unknown file 
 			}
-			cout << "Success! File found" << endl;
+			cout << "Success! File found" << endl; // If the file does exist 
 			fileFound = true;
 		}
 		catch (string s) {
 			cout << s << endl;
 		}
 	}
+
+	// File parsing (with invalid file exception handling) 
 	cout << "\n";
-	string parser = "";
 	vector<string> substrings;
 	while (getline(file, parser)) { // While there is a line available to assign to our parser variable 
 		try {
