@@ -100,7 +100,7 @@ private: // All private methods for encapsulation and so the user does not have 
 	}
 };
 
-vector<string> split(string s, char delimiter) { // Splits the string into substrings with delimiter being ','
+vector<string> split(string s, char delimiter, boolean isDigit = false) { // Splits the string into substrings with delimiter being ','
 	vector<string> returned;
 	int pos = 0;
 
@@ -127,39 +127,38 @@ vector<string> split(string s, char delimiter) { // Splits the string into subst
 	return returned;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	Tree<string> stringTree; // String tree
 	Tree<double> doubleTree; // Double tree
 	Tree<int> intTree; // Int tree 
 
-	bool fileFound = false;
-	string fileName;
 	string parser = "";
 	ifstream file;
 
-	while (!fileFound) {
-		cout << "Please enter the name of your file " << endl;
-		cin >> fileName;
-		try {
-			file.open(fileName); // Attempts to open the file 
-			if (file.fail()) { // If file doesn't exist 
-				throw string("Cannot find file, try again"); // Throw point for an unknown file 
-			}
-			cout << "Success! File found" << endl; // If the file does exist 
-			fileFound = true;
+	try {
+		string fileName = argv[1]; // Gets the filename from command arguments 
+		file.open(fileName); // Attempts to open the file 
+		if (file.fail()) { // If file doesn't exist 
+			throw string("Cannot find file '" + fileName + "', restart program"); // Throw point for an unknown file 
 		}
-		catch (string s) {
-			cout << s << endl;
-		}
+		cout << "Success! File '" << fileName << "' found" << endl; // If the file does exist 
 	}
+	catch (exception e) {
+		cout << "Error, no file name" << endl;
+	}
+	catch (string s) {
+		cout << s << endl;
+	}
+
 
 	// File parsing (with invalid file exception handling) 
 	cout << "\n";
 	vector<string> substrings;
 	while (getline(file, parser)) { // While there is a line available to assign to our parser variable 
 		try {
-			substrings = split(parser, ','); // First, I use the split() method to split the line into substrings in order to make up the vector's elements 
+			substrings = split(parser, ',');
+			// First, I use the split() method to split the line into substrings in order to make up the vector's elements 
 			if (substrings.size() == 0) { // However, if the line is blank, then it will show an error message and move on to the next line 
 				throw;
 			}
@@ -177,78 +176,58 @@ int main()
 				}
 				else if (substrings[0].find('.') != string::npos) { // This is if the first character was a double value
 					try {
-						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') { // If there is a letter, then we skip since we only can have doubles 
-							throw string("Error, the string '" + substrings[i] + "' has letters in it, but the line should be made of doubles, skipping...");
-						}
-						if (substrings[i].find('.') == string::npos) { // If there is no decimal point (.), then we skip since we only can have doubles 
-							throw string("Error, the string '" + substrings[i] + "' is an integer, but the line should be made of doubles, skipping...");
-						}
 						double d = stod(substrings[i]); // conversion of string to double 
 						doubleTree.insert(d, "double"); // inserting value into double tree 
 					}
-					catch (string s) {
-						cout << s << endl;
+					catch (invalid_argument) // Catches stod exception: invalid_argument
+					{
+						cout << "Stod conversion could not be completed on invalid argument '" << substrings[i] << "'" << endl;
+					}
+					catch (out_of_range) { // Catches stod exception: out_of_range
+						cout << "The double value '" << substrings[i] << "' is out of range of all possible double values" << endl;
 					}
 				}
 				else { // The value is an integer value (because first character is a number and there is no decimal point) 
 					try {
-						if (substrings[i][0] >= 'A' && substrings[i][0] <= 'z') { // If the first character of any subsequent tree is a letter, then we skip
-							throw string("Error, the string '" + substrings[i] + "' has letters in it, but the line should be made of integers, skipping...");
-						}
-						if (substrings[i].find('.') == true) { // Or if we find a decimal point, then skip it because we can only have integers
-							throw string("Error, the string '" + substrings[i] + "' is a double, but the line should be made of integers, skipping...");
-						}
 						int num = stoi(substrings[i]); // Converts string to integer 
 						intTree.insert(num, "integer"); // Adds value to integer tree 
 					}
-					catch (string s) {
-						cout << s << endl;
+					catch (invalid_argument) // Catches stoi exception: invalid_argument
+					{
+						cout << "Stoi conversion could not be completed on invalid argument '" << substrings[i] << "'" << endl;
+					}
+					catch (out_of_range) { // Catches stoi exception: out_of_range
+						cout << "The integer value '" << substrings[i] << "' is out of range of all possible integer values (-2,147,483,648 to 2,147,483,647)" << endl;
 					}
 				}
 			}
+			cout << "\n";
+			// Time to print every tree in ascending order (hence "inorder" traversal)
+			cout << "Printing trees (Inorder): " << endl;
+			cout << "String tree: ";
+			stringTree.displayInorder();
+			cout << endl;
+
+			cout << "Double tree: ";
+			doubleTree.displayInorder();
+			cout << endl;
+
+			cout << "Integer tree: ";
+			intTree.displayInorder();
+			cout << endl;
+
+			// After printing, I will now remove all nodes from each tree with postorder traversal 
+			cout << "\nDeleting tree: " << endl;
+			stringTree.removeAllPostorder();
+			cout << endl;
+			doubleTree.removeAllPostorder();
+			cout << endl;
+			intTree.removeAllPostorder();
+			cout << endl;
 		}
 		catch (exception e) { // This catch is the blank line exception handler 
 			cout << "Line is empty, moving on to next line" << endl;
 		}
-		cout << "\n";
 	}
-
-	// Time to print every tree in ascending order (hence "inorder" traversal)
-	cout << "Printing trees (Inorder): " << endl;
-	cout << "String tree: ";
-	stringTree.displayInorder();
-	cout << endl;
-
-	cout << "Double tree: ";
-	doubleTree.displayInorder();
-	cout << endl;
-
-	cout << "Integer tree: ";
-	intTree.displayInorder();
-	cout << endl;
-
-	// After printing, I will now remove all nodes from each tree with postorder traversal 
-	cout << "\nDeleting all trees: " << endl;
-	stringTree.removeAllPostorder();
-	cout << endl;
-	doubleTree.removeAllPostorder();
-	cout << endl;
-	intTree.removeAllPostorder();
-	cout << endl;
-
-	// Then I print the trees again to prove that it actually deleted everything 
-	cout << "Printing trees (post-deletion): " << endl;
-	cout << "String tree: ";
-	stringTree.displayInorder();
-	cout << endl;
-
-	cout << "Double tree: ";
-	doubleTree.displayInorder();
-	cout << endl;
-
-	cout << "Integer tree: ";
-	intTree.displayInorder();
-	cout << endl;
-
 	file.close();
 }

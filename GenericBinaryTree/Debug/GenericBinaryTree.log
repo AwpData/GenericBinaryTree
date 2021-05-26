@@ -1,3 +1,4 @@
 ﻿  GenericBinaryTree.cpp
-C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(147,12): error C3329: syntax error: expected 'identifier' not ';'
-C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(165): message : see reference to class template instantiation 'Tree<T>' being compiled
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(122,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\GenericBinaryTree.cpp(165,22): warning C4018: '<': signed/unsigned mismatch
+  GenericBinaryTree.vcxproj -> C:\Users\Trevor Tang\source\repos\GenericBinaryTree\GenericBinaryTree\Debug\GenericBinaryTree.exe
